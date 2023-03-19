@@ -12,7 +12,7 @@ from struct import unpack, error as struct_error
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-from . import MIN_PY, MAX_PY, CONF_PATH
+from . import MIN_PY, MAX_PY, CONF_PATH, CORE_REPO, CORE_BRANCH
 from .types import Database
 from .utils import log, error, open_url, assert_read, assert_read_write
 
@@ -45,6 +45,7 @@ def _py_version() -> None:
 
 
 def _config_file() -> None:
+    global CORE_REPO, CORE_BRANCH
     log("Checking Config File ...")
 
     if isfile(CONF_PATH):
@@ -52,7 +53,8 @@ def _config_file() -> None:
 
         assert_read(CONF_PATH)
         load_dotenv(CONF_PATH)
-
+        CORE_REPO = os.environ.get('CORE_REPO', "https://github.com/lanowde/Userge")
+        CORE_BRANCH = os.environ.get('CORE_BRANCH', "main")
 
 def _vars() -> None:
     log("Checking ENV Vars ...")
