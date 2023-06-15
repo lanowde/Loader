@@ -1,6 +1,22 @@
-__all__ = ['log', 'error', 'terminate', 'call', 'open_url', 'get_client_type',
-           'safe_url', 'safe_repo_info', 'grab_conflicts', 'assert_read', 'assert_write',
-           'assert_read_write', 'remove', 'rmtree', 'clean_core', 'clean_plugins', 'print_logo']
+__all__ = [
+    "log",
+    "error",
+    "terminate",
+    "call",
+    "open_url",
+    "get_client_type",
+    "safe_url",
+    "safe_repo_info",
+    "grab_conflicts",
+    "assert_read",
+    "assert_write",
+    "assert_read_write",
+    "remove",
+    "rmtree",
+    "clean_core",
+    "clean_plugins",
+    "print_logo",
+]
 
 import logging
 import os
@@ -16,6 +32,7 @@ from shutil import rmtree as _rmtree
 from typing import Optional, Tuple, Set, Dict, Any
 from urllib.error import HTTPError
 from urllib.request import urlopen, Request
+
 try:
     from signal import CTRL_C_EVENT as SIGTERM
 except ImportError:
@@ -23,17 +40,18 @@ except ImportError:
 
 from loader.types import RepoInfo
 
-if not os.path.exists('logs'):
-    os.mkdir('logs')
+if not os.path.exists("logs"):
+    os.mkdir("logs")
 
-logging.basicConfig(level=logging.INFO,
-                    format='[%(asctime)s - %(levelname)s] - %(name)s - %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S',
-                    handlers=[
-                        RotatingFileHandler(
-                            "logs/loader.log", maxBytes=81920, backupCount=10),
-                        logging.StreamHandler()
-                    ])
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s - %(levelname)s] - %(name)s - %(message)s",
+    datefmt="%d-%b-%y %H:%M:%S",
+    handlers=[
+        RotatingFileHandler("logs/loader.log", maxBytes=81920, backupCount=10),
+        logging.StreamHandler(),
+    ],
+)
 
 _LOG = logging.getLogger("loader")
 
@@ -53,7 +71,9 @@ def terminate(pid: int) -> None:
 
 
 def call(*args: str) -> Tuple[int, str]:
-    p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    p = subprocess.Popen(
+        args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True
+    )
     return p.wait(), p.communicate()[1]
 
 
@@ -66,8 +86,8 @@ def open_url(url: str, headers: Optional[dict] = None) -> Tuple[Any, Optional[st
 
 
 def get_client_type() -> str:
-    token = os.environ.get('BOT_TOKEN')
-    string = os.environ.get('SESSION_STRING')
+    token = os.environ.get("BOT_TOKEN")
+    string = os.environ.get("SESSION_STRING")
 
     if token and string:
         return "dual"
@@ -78,12 +98,12 @@ def get_client_type() -> str:
 
 
 _TOKEN = re.compile("ghp_[0-9A-z]{36}")
-_REQUIREMENTS = re.compile(r'(\S+)(<=|<|==|>=|>|!=|~=)(\S+)')
+_REQUIREMENTS = re.compile(r"(\S+)(<=|<|==|>=|>|!=|~=)(\S+)")
 
 
 @lru_cache
 def safe_url(url: str) -> str:
-    return _TOKEN.sub('private', url)
+    return _TOKEN.sub("private", url)
 
 
 def safe_repo_info(repo_info: RepoInfo) -> RepoInfo:
@@ -96,7 +116,9 @@ def safe_repo_info(repo_info: RepoInfo) -> RepoInfo:
 def grab_conflicts(requirements: Set[str]) -> Set[str]:
     to_audit: Dict[str, Dict[str, Set[str]]] = {}
 
-    for req in filter(lambda _: any(map(_.__contains__, ('=', '>', '<'))), requirements):
+    for req in filter(
+        lambda _: any(map(_.__contains__, ("=", ">", "<"))), requirements
+    ):
         match = _REQUIREMENTS.match(req)
 
         name = match.group(1)
@@ -114,18 +136,14 @@ def grab_conflicts(requirements: Set[str]) -> Set[str]:
         version = versions[version]
 
         # :)
-        if cond == '~=':
-            cond = '>='
+        if cond == "~=":
+            cond = ">="
 
         version.add(cond)
 
-    gt, ge, eq, le, lt, neq = '>', '>=', '==', '<=', '<', '!='
+    gt, ge, eq, le, lt, neq = ">", ">=", "==", "<=", "<", "!="
 
-    sequence = (
-        (gt, ge, neq),
-        (ge, eq, le),
-        (le, lt, neq)
-    )
+    sequence = ((gt, ge, neq), (ge, eq, le), (le, lt, neq))
 
     pattern = []
 
@@ -220,19 +238,19 @@ def clean_plugins() -> None:
 
 
 def _print_line():
-    log('->- ->- ->- ->- ->- ->- ->- --- -<- -<- -<- -<- -<- -<- -<-')
+    log("->- ->- ->- ->- ->- ->- ->- --- -<- -<- -<- -<- -<- -<- -<-")
 
 
 def print_logo():
     _print_line()
 
-    logo = r'''
+    logo = r"""
      ________            __  __               ______
     /_  __/ /_  ___     / / / /_______  _____/ ____/__
      / / / __ \/ _ \   / / / / ___/ _ \/ ___/ / __/ _ \
     / / / / / /  __/  / /_/ (__  )  __/ /  / /_/ /  __/
    /_/ /_/ /_/\___/   \____/____/\___/_/   \____/\___/
-'''
+"""
     log(logo)
 
     _print_line()

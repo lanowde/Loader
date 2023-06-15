@@ -1,4 +1,4 @@
-__all__ = ['send_and_wait', 'send_and_async_wait']
+__all__ = ["send_and_wait", "send_and_async_wait"]
 
 import asyncio
 import atexit

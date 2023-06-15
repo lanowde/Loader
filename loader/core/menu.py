@@ -1,4 +1,4 @@
-__all__ = ['main_menu']
+__all__ = ["main_menu"]
 
 import os
 from time import sleep
@@ -7,7 +7,7 @@ from .types import Repos, Sig, Cache
 
 
 def _clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def _print(out) -> None:
@@ -29,13 +29,15 @@ def _delete_repos() -> None:
     for repo in Repos.iter_repos():
         out += f"{repo.info.id}. {repo.info.url}\n"
 
-    code = input(f"""Menu > settings > repos > delete
+    code = input(
+        f"""Menu > settings > repos > delete
 0. back
 {out.strip()}
-: """).strip()
+: """
+    ).strip()
 
     while True:
-        if code == '0':
+        if code == "0":
             _repos()
 
         else:
@@ -54,19 +56,21 @@ def _delete_repos() -> None:
 def _core() -> None:
     _clear()
 
-    code = input("""Menu > settings > core
+    code = input(
+        """Menu > settings > core
 0. back
 1. reset
 2. invalidate cache
 3. clear cache
 4. menu
-: """).strip()
+: """
+    ).strip()
 
     while True:
-        if code == '0':
+        if code == "0":
             _settings()
 
-        elif code == '1':
+        elif code == "1":
             Repos.load()
 
             core = Repos.get_core()
@@ -76,10 +80,10 @@ def _core() -> None:
             _print("reset core")
             _core()
 
-        elif code == '2' or code == '3':
+        elif code == "2" or code == "3":
             Sig.core_remove()
 
-            if code == '2':
+            if code == "2":
                 _print("invalidated core cache")
 
             else:
@@ -89,7 +93,7 @@ def _core() -> None:
 
             _core()
 
-        elif code == '4':
+        elif code == "4":
             main_menu()
 
         else:
@@ -102,25 +106,27 @@ def _core() -> None:
 def _repos() -> None:
     _clear()
 
-    code = input("""Menu > settings > repos
+    code = input(
+        """Menu > settings > repos
 0. back
 1. delete
 2. invalidate cache
 3. clear cache
 4. menu
-: """).strip()
+: """
+    ).strip()
 
     while True:
-        if code == '0':
+        if code == "0":
             _settings()
 
-        elif code == '1':
+        elif code == "1":
             _delete_repos()
 
-        elif code == '2' or code == '3':
+        elif code == "2" or code == "3":
             Sig.repos_remove()
 
-            if code == '2':
+            if code == "2":
                 _print("invalidated repos cache")
 
             else:
@@ -130,7 +136,7 @@ def _repos() -> None:
 
             _repos()
 
-        elif code == '4':
+        elif code == "4":
             main_menu()
 
         else:
@@ -143,29 +149,31 @@ def _repos() -> None:
 def _settings() -> None:
     _clear()
 
-    code = input("""Menu > settings
+    code = input(
+        """Menu > settings
 0. back
 1. core
 2. repos
 3. invalidate cache
 4. clear cache
-: """).strip()
+: """
+    ).strip()
 
     while True:
-        if code == '0':
+        if code == "0":
             main_menu()
 
-        elif code == '1':
+        elif code == "1":
             _core()
 
-        elif code == '2':
+        elif code == "2":
             _repos()
 
-        elif code == '3' or code == '4':
+        elif code == "3" or code == "4":
             Sig.core_remove()
             Sig.repos_remove()
 
-            if code == '3':
+            if code == "3":
                 _print("invalidated cache")
 
             else:
@@ -186,20 +194,22 @@ def _settings() -> None:
 def main_menu() -> None:
     _clear()
 
-    code = input("""Menu
+    code = input(
+        """Menu
 1. start
 2. settings
 3. exit
-: """).strip()
+: """
+    ).strip()
 
     while True:
-        if code == '1':
+        if code == "1":
             _clear()
 
-        elif code == '2':
+        elif code == "2":
             _settings()
 
-        elif code == '3':
+        elif code == "3":
             _clear()
             raise KeyboardInterrupt
 

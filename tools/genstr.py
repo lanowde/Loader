@@ -30,7 +30,8 @@ async def string() -> None:  # pylint: disable=missing-function-docstring
         out = "sent to saved messages!"
         try:
             await userge.send_message(
-                "me", f"#USERGE #SESSION_STRING\n\n`{await userge.export_session_string()}`"
+                "me",
+                f"#USERGE #SESSION_STRING\n\n`{await userge.export_session_string()}`",
             )
         except UserIsBot:
             out = "successfully printed!"

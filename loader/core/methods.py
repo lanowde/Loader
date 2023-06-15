@@ -1,4 +1,4 @@
-__all__ = ['fetch_core', 'fetch_repos']
+__all__ = ["fetch_core", "fetch_repos"]
 
 from contextlib import suppress
 from os import environ
@@ -128,8 +128,12 @@ def edit_core(branch: Optional[str], version: Optional[Union[int, str]]) -> bool
 
 
 @on(job.EDIT_REPO)
-def edit_repo(repo_id: int, branch: Optional[str], version: Optional[Union[int, str]],
-              priority: Optional[int]) -> bool:
+def edit_repo(
+    repo_id: int,
+    branch: Optional[str],
+    version: Optional[Union[int, str]],
+    priority: Optional[int],
+) -> bool:
     repo = Repos.get(repo_id)
     if repo:
         return repo.edit(branch, version, priority)

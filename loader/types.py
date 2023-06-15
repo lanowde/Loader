@@ -4,7 +4,9 @@ from git import Commit
 
 
 class RepoInfo:
-    def __init__(self, id_: int, name: str, priority: int, branch: str, version: str, url: str):
+    def __init__(
+        self, id_: int, name: str, priority: int, branch: str, version: str, url: str
+    ):
         self.id = id_
         self.name = name
         self.priority = priority
@@ -16,24 +18,26 @@ class RepoInfo:
         self.branches = []
 
     @classmethod
-    def parse(cls, id_: int, priority: int, branch: str,
-              version: str, url: str) -> 'RepoInfo':
-        name = '.'.join(url.split('/')[-2:])
+    def parse(
+        cls, id_: int, priority: int, branch: str, version: str, url: str
+    ) -> "RepoInfo":
+        name = ".".join(url.split("/")[-2:])
 
         return cls(id_, name, priority, branch, version, url)
 
     @property
     def head_url(self) -> str:
-        return self.url.rstrip('/') + "/commit/" + self.version
+        return self.url.rstrip("/") + "/commit/" + self.version
 
     def __repr__(self) -> str:
-        return (f"<RepoInfo id={self.id}, name={self.name}, priority={self.priority}, "
-                f"branch={self.branch}, count={self.count}>")
+        return (
+            f"<RepoInfo id={self.id}, name={self.name}, priority={self.priority}, "
+            f"branch={self.branch}, count={self.count}>"
+        )
 
 
 class Update:
-    def __init__(self, summary: str, author: str, version: str,
-                 count: int, url: str):
+    def __init__(self, summary: str, author: str, version: str, count: int, url: str):
         self.summary = summary
         self.author = author
         self.version = version
@@ -41,7 +45,7 @@ class Update:
         self.url = url
 
     @classmethod
-    def parse(cls, repo_url: str, commit: Commit) -> 'Update':
+    def parse(cls, repo_url: str, commit: Commit) -> "Update":
         summary = str(commit.summary)
 
         author = commit.author.name
@@ -50,13 +54,15 @@ class Update:
 
         version = commit.hexsha
         count = commit.count()
-        url = repo_url.rstrip('/') + "/commit/" + version
+        url = repo_url.rstrip("/") + "/commit/" + version
 
         return cls(summary, author, version, count, url)
 
     def __repr__(self) -> str:
-        return (f"<Update summary={self.summary}, author={self.author}, "
-                f"version={self.version}, count={self.count}, url={self.url}>")
+        return (
+            f"<Update summary={self.summary}, author={self.author}, "
+            f"version={self.version}, count={self.count}, url={self.url}>"
+        )
 
 
 class Constraint:

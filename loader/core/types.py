@@ -1,4 +1,13 @@
-__all__ = ['Database', 'Repos', 'Constraints', 'Sig', 'Cache', 'Requirements', 'Session', 'Tasks']
+__all__ = [
+    "Database",
+    "Repos",
+    "Constraints",
+    "Sig",
+    "Cache",
+    "Requirements",
+    "Session",
+    "Tasks",
+]
 
 import os
 import re
@@ -32,7 +41,7 @@ class Database:
         return cls._instance is None
 
     @classmethod
-    def get(cls) -> 'Database':
+    def get(cls) -> "Database":
         if not cls._instance:
             error("Database not initialized !")
         return cls._instance
@@ -47,8 +56,8 @@ class Database:
     @classmethod
     def fix_url(cls, url: str) -> str:
         u_and_p = cls._RE_UP.search(url).group(1)
-        name, pwd = u_and_p.split(':')
-        escaped = quote_plus(name) + ':' + quote_plus(pwd)
+        name, pwd = u_and_p.split(":")
+        escaped = quote_plus(name) + ":" + quote_plus(pwd)
         return url.replace(u_and_p, escaped)
 
     def __init__(self, config: Collection, repos: Collection, constraint: Collection):
@@ -57,7 +66,7 @@ class Database:
         self._constraint = constraint
 
     @classmethod
-    def parse(cls, client: MongoClient) -> 'Database':
+    def parse(cls, client: MongoClient) -> "Database":
         db = client["Loader"]
 
         config = db["config"]
@@ -84,7 +93,7 @@ class _Parser:
         self._section = section
 
     @classmethod
-    def parse(cls, path: str) -> '_Parser':
+    def parse(cls, path: str) -> "_Parser":
         parser = ConfigParser()
         parser.read(path)
         section = parser[parser.default_section]
@@ -106,15 +115,30 @@ class _Parser:
     def getset(self, key: str, lower=False) -> Optional[Set[str]]:
         value = self.get(key)
         if value:
-            return set(filter(None, map(
-                lambda _: _.strip().lower() if lower else _.strip(), value.split(','))))
+            return set(
+                filter(
+                    None,
+                    map(
+                        lambda _: _.strip().lower() if lower else _.strip(),
+                        value.split(","),
+                    ),
+                )
+            )
 
 
 class _Config:
-    def __init__(self, available: Optional[bool], os_type: Optional[str],
-                 min_core: Optional[int], max_core: Optional[int], client_type: Optional[str],
-                 envs: Optional[Set[str]], bins: Optional[Set[str]],
-                 depends: Optional[Set[str]], packages: Optional[Set[str]]):
+    def __init__(
+        self,
+        available: Optional[bool],
+        os_type: Optional[str],
+        min_core: Optional[int],
+        max_core: Optional[int],
+        client_type: Optional[str],
+        envs: Optional[Set[str]],
+        bins: Optional[Set[str]],
+        depends: Optional[Set[str]],
+        packages: Optional[Set[str]],
+    ):
         self.available = available
         self.os = os_type
         self.min_core = min_core
@@ -126,26 +150,42 @@ class _Config:
         self.packages = packages
 
     @classmethod
-    def parse(cls, path: str) -> '_Config':
+    def parse(cls, path: str) -> "_Config":
         parser = _Parser.parse(path)
 
-        available = parser.getboolean('available')
-        os_type = parser.get('os')
-        min_core = parser.getint('min_core')
-        max_core = parser.getint('max_core')
-        client_type = parser.get('client_type')
-        envs = parser.getset('envs')
-        bins = parser.getset('bins')
-        depends = parser.getset('depends', True)
-        packages = parser.getset('packages', True)
+        available = parser.getboolean("available")
+        os_type = parser.get("os")
+        min_core = parser.getint("min_core")
+        max_core = parser.getint("max_core")
+        client_type = parser.get("client_type")
+        envs = parser.getset("envs")
+        bins = parser.getset("bins")
+        depends = parser.getset("depends", True)
+        packages = parser.getset("packages", True)
 
-        return cls(available, os_type, min_core, max_core,
-                   client_type, envs, bins, depends, packages)
+        return cls(
+            available,
+            os_type,
+            min_core,
+            max_core,
+            client_type,
+            envs,
+            bins,
+            depends,
+            packages,
+        )
 
 
 class _Plugin:
-    def __init__(self, path: str, cat: str, name: str,
-                 config: _Config, repo_name: str, repo_url: str):
+    def __init__(
+        self,
+        path: str,
+        cat: str,
+        name: str,
+        config: _Config,
+        repo_name: str,
+        repo_url: str,
+    ):
         self.path = path
         self.cat = cat
         self.name = name
@@ -154,7 +194,7 @@ class _Plugin:
         self.repo_url = repo_url
 
     @classmethod
-    def parse(cls, path: str, cat: str, name: str, repo: RepoInfo) -> '_Plugin':
+    def parse(cls, path: str, cat: str, name: str, repo: RepoInfo) -> "_Plugin":
         config = _Config.parse(join(path, "config.ini"))
 
         return cls(path, cat, name, config, repo.name, repo.url)
@@ -194,12 +234,14 @@ class _BaseRepo:
                 self._git = GitRepo.clone_from(self.info.url, self._path)
             except GitCommandError as e:
                 self._error_code = e.status
-                self._stderr = (e.stderr or 'null').strip()
+                self._stderr = (e.stderr or "null").strip()
 
     def _branch_exists(self, branch: str) -> bool:
         return branch and self._git and branch in self._git.heads
 
-    def _get_commit(self, version: Optional[Union[int, str]] = None) -> Optional[Commit]:
+    def _get_commit(
+        self, version: Optional[Union[int, str]] = None
+    ) -> Optional[Commit]:
         if version is None:
             version = self.info.version
 
@@ -215,7 +257,9 @@ class _BaseRepo:
 
                 if input_count < head_count:
                     skip = head_count - input_count
-                    data = list(self._git.iter_commits(self.info.branch, max_count=1, skip=skip))
+                    data = list(
+                        self._git.iter_commits(self.info.branch, max_count=1, skip=skip)
+                    )
 
                     if data:
                         return data[0]
@@ -240,12 +284,14 @@ class _BaseRepo:
                 _branches.add(branch)
 
                 if branch not in self._git.heads:
-                    self._git.create_head(branch, info.ref).set_tracking_branch(info.ref)
+                    self._git.create_head(branch, info.ref).set_tracking_branch(
+                        info.ref
+                    )
 
         except GitCommandError as e:
             self._git = None
             self._error_code = e.status
-            self._stderr = (e.stderr or 'null').strip()
+            self._stderr = (e.stderr or "null").strip()
             return
 
         for head in self._git.heads:
@@ -295,7 +341,9 @@ class _BaseRepo:
     def checkout_branch(self) -> None:
         branch = self.info.branch
 
-        if self._git and (self._git.head.is_detached or self._git.head.ref.name != branch):
+        if self._git and (
+            self._git.head.is_detached or self._git.head.ref.name != branch
+        ):
             self._git.git.checkout(branch, force=True)
 
     def copy(self, source: str, path: str) -> None:
@@ -326,8 +374,9 @@ class _BaseRepo:
                 skip = top.count() - head.count() + 1
 
                 if skip > 0:
-                    for commit in self._git.iter_commits(self.info.branch,
-                                                         max_count=limit, skip=skip):
+                    for commit in self._git.iter_commits(
+                        self.info.branch, max_count=limit, skip=skip
+                    ):
                         data.append(Update.parse(safe_url(self.info.url), commit))
 
         return data
@@ -337,10 +386,14 @@ class _BaseRepo:
 
     @staticmethod
     def gen_path(path: str, url: str) -> str:
-        return join(path, '.'.join(url.split('/')[-2:]))
+        return join(path, ".".join(url.split("/")[-2:]))
 
-    def edit(self, branch: Optional[str], version: Optional[Union[int, str]],
-             priority: Optional[int]) -> bool:
+    def edit(
+        self,
+        branch: Optional[str],
+        version: Optional[Union[int, str]],
+        priority: Optional[int],
+    ) -> bool:
         _changed = False
 
         if branch and self.info.branch != branch and self._branch_exists(branch):
@@ -383,7 +436,7 @@ class _CoreRepo(_BaseRepo):
     _branch = CORE_BRANCH
 
     @classmethod
-    def parse(cls, branch: str, version: str) -> '_CoreRepo':
+    def parse(cls, branch: str, version: str) -> "_CoreRepo":
         info = RepoInfo.parse(-1, -1, branch or cls._branch, version, cls._url)
         path = _BaseRepo.gen_path(cls.PATH, cls._url)
 
@@ -407,11 +460,17 @@ class _CoreRepo(_BaseRepo):
         cat_path = join(self._path, "plugins", "builtin")
 
         if exists(cat_path):
-            return list(filter(lambda _: isdir(_) and not _.startswith("_"), os.listdir(cat_path)))
+            return list(
+                filter(
+                    lambda _: isdir(_) and not _.startswith("_"), os.listdir(cat_path)
+                )
+            )
 
         return []
 
-    def edit(self, branch: Optional[str], version: Optional[Union[int, str]], _=None) -> bool:
+    def edit(
+        self, branch: Optional[str], version: Optional[Union[int, str]], _=None
+    ) -> bool:
         return super().edit(branch, version, None)
 
     def reset(self) -> None:
@@ -427,9 +486,11 @@ class _CoreRepo(_BaseRepo):
         super().copy(source, path)
 
     def _update(self) -> None:
-        Database.get().config.update_one({'key': 'core'},
-                                         {"$set": {'branch': self.info.branch,
-                                                   'version': self.info.version}}, upsert=True)
+        Database.get().config.update_one(
+            {"key": "core"},
+            {"$set": {"branch": self.info.branch, "version": self.info.version}},
+            upsert=True,
+        )
         Sig.core_remove()
 
 
@@ -443,7 +504,9 @@ class _PluginsRepo(_BaseRepo):
         self._plugins: List[_Plugin] = []
 
     @classmethod
-    def parse(cls, priority: int, branch: str, version: str, url: str) -> '_PluginsRepo':
+    def parse(
+        cls, priority: int, branch: str, version: str, url: str
+    ) -> "_PluginsRepo":
         info = RepoInfo.parse(next(cls._counter), priority, branch, version, url)
         path = _BaseRepo.gen_path(cls.PATH, url)
 
@@ -458,12 +521,12 @@ class _PluginsRepo(_BaseRepo):
 
         for cat in os.listdir(plugins_path):
             cat_path = join(plugins_path, cat)
-            if not isdir(cat_path) or cat == "builtin" or cat.startswith('_'):
+            if not isdir(cat_path) or cat == "builtin" or cat.startswith("_"):
                 continue
 
             for plg in os.listdir(cat_path):
                 plg_path = join(cat_path, plg)
-                if not isdir(plg_path) or plg.startswith('_'):
+                if not isdir(plg_path) or plg.startswith("_"):
                     continue
 
                 self._plugins.append(_Plugin.parse(plg_path, cat, plg, self.info))
@@ -472,10 +535,16 @@ class _PluginsRepo(_BaseRepo):
         return iter(self._plugins)
 
     def _update(self) -> None:
-        Database.get().repos.update_one({'url': self.info.url},
-                                        {"$set": {'branch': self.info.branch,
-                                                  'version': self.info.version,
-                                                  'priority': self.info.priority}})
+        Database.get().repos.update_one(
+            {"url": self.info.url},
+            {
+                "$set": {
+                    "branch": self.info.branch,
+                    "version": self.info.version,
+                    "priority": self.info.priority,
+                }
+            },
+        )
         Sig.repos_remove()
 
 
@@ -493,13 +562,15 @@ class Repos:
 
         db = Database.get()
 
-        data = db.config.find_one({'key': 'core'})
-        branch = data['branch'] if data else ""
-        version = data['version'] if data else ""
+        data = db.config.find_one({"key": "core"})
+        branch = data["branch"] if data else ""
+        version = data["version"] if data else ""
         cls._core = _CoreRepo.parse(branch, version)
 
         for d in db.repos.find():
-            repo = _PluginsRepo.parse(d['priority'], d['branch'], d['version'], d['url'])
+            repo = _PluginsRepo.parse(
+                d["priority"], d["branch"], d["version"], d["url"]
+            )
             cls._plugins.append(repo)
 
         cls.sort()
@@ -542,8 +613,9 @@ class Repos:
 
         cls._plugins.append(_PluginsRepo.parse(priority, branch, version, url))
         cls.sort()
-        Database.get().repos.insert_one({'priority': priority, 'branch': branch,
-                                         'version': version, 'url': url})
+        Database.get().repos.insert_one(
+            {"priority": priority, "branch": branch, "version": version, "url": url}
+        )
         Sig.repos_remove()
 
         return True
@@ -553,7 +625,7 @@ class Repos:
         repo = cls.get(repo_id)
         if repo:
             cls._plugins.remove(repo)
-            Database.get().repos.delete_one({'url': repo.info.url})
+            Database.get().repos.delete_one({"url": repo.info.url})
             repo.delete()
             Sig.repos_remove()
 
@@ -563,17 +635,22 @@ class Repos:
 
 
 class _ConstraintData:
-    def __init__(self, repo_name: Optional[str], plg_cat: Optional[str],
-                 plg_name: Optional[str], raw: str):
+    def __init__(
+        self,
+        repo_name: Optional[str],
+        plg_cat: Optional[str],
+        plg_name: Optional[str],
+        raw: str,
+    ):
         self.repo_name = repo_name
         self.plg_cat = plg_cat
         self.plg_name = plg_name
         self.raw = raw
 
     @classmethod
-    def parse(cls, data: str) -> '_ConstraintData':
+    def parse(cls, data: str) -> "_ConstraintData":
         data = data.strip().lower()
-        parts = data.split('/')
+        parts = data.split("/")
         size = len(parts)
 
         repo_name = None
@@ -676,7 +753,7 @@ class _Constraint:
         return False
 
     def __str__(self) -> str:
-        return self.get_type() + '(' + str(self._to_str_list()) + ')'
+        return self.get_type() + "(" + str(self._to_str_list()) + ")"
 
 
 class _Include(_Constraint):
@@ -752,8 +829,8 @@ class Constraints:
             return
 
         for d in Database.get().constraint.find():
-            c_type = d['type']
-            data = d['data']
+            c_type = d["type"]
+            data = d["data"]
 
             const = cls._data.get(c_type)
 
@@ -773,7 +850,8 @@ class Constraints:
 
         if to_add:
             Database.get().constraint.insert_many(
-                map(lambda _: dict(type=const.get_type(), data=_), to_add))
+                map(lambda _: dict(type=const.get_type(), data=_), to_add)
+            )
 
             Sig.repos_remove()
 
@@ -794,10 +872,10 @@ class Constraints:
             to_remove = cls._data.remove(data)
 
         if to_remove:
-            _data = {'data': {'$in': to_remove}}
+            _data = {"data": {"$in": to_remove}}
 
             if c_type:
-                _data['type'] = c_type.strip().lower()
+                _data["type"] = c_type.strip().lower()
 
             Database.get().constraint.delete_many(_data)
             Sig.repos_remove()
@@ -842,7 +920,7 @@ class Sig:
     @staticmethod
     def _make(path: str) -> None:
         if not exists(path):
-            open(path, 'w').close()
+            open(path, "w").close()
 
     @classmethod
     def core_exists(cls) -> bool:
@@ -900,14 +978,14 @@ class Requirements:
             data = cls._data.copy()
             cls._data.clear()
 
-            cls._install('--upgrade', 'pip')
-            return cls._install('--no-warn-script-location', *data)
+            cls._install("--upgrade", "pip")
+            return cls._install("--no-warn-script-location", *data)
 
-        return 0, ''
+        return 0, ""
 
     @staticmethod
     def _install(*args: str) -> Tuple[int, str]:
-        return call(sys.executable, '-m', 'pip', 'install', *args)
+        return call(sys.executable, "-m", "pip", "install", *args)
 
 
 class Tasks:

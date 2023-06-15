@@ -1,4 +1,4 @@
-__all__ = ['load']
+__all__ = ["load"]
 
 import os
 import sys
@@ -12,8 +12,17 @@ from .checks import do_checks
 from .menu import main_menu
 from .methods import fetch_core, fetch_repos
 from .types import Repos, Constraints, Sig, Requirements, Session, Tasks
-from .utils import log, error, call, get_client_type, safe_url, grab_conflicts, clean_core, \
-    clean_plugins, print_logo
+from .utils import (
+    log,
+    error,
+    call,
+    get_client_type,
+    safe_url,
+    grab_conflicts,
+    clean_core,
+    clean_plugins,
+    print_logo,
+)
 from .. import __version__
 from ..userge.main import run
 
@@ -77,7 +86,7 @@ def init_repos() -> None:
     plugins = {}
     core_version = Repos.get_core().info.count
     client_type = get_client_type()
-    os_type = dict(posix='linux', nt='windows').get(os.name, os.name)
+    os_type = dict(posix="linux", nt="windows").get(os.name, os.name)
 
     for repo in Repos.iter_repos():
         if repo.failed:
@@ -96,7 +105,7 @@ def init_repos() -> None:
             conf = plg.config
             reason = None
 
-            for _ in ' ':
+            for _ in " ":
                 if not conf.available:
                     reason = "not available"
                     break
@@ -111,13 +120,17 @@ def init_repos() -> None:
                     break
 
                 if conf.min_core and conf.min_core > core_version:
-                    reason = (f"min core version {conf.min_core} is required, "
-                              f"current: {core_version}")
+                    reason = (
+                        f"min core version {conf.min_core} is required, "
+                        f"current: {core_version}"
+                    )
                     break
 
                 if conf.max_core and conf.max_core < core_version:
-                    reason = (f"max core version {conf.max_core} is required, "
-                              f"current: {core_version}")
+                    reason = (
+                        f"max core version {conf.max_core} is required, "
+                        f"current: {core_version}"
+                    )
                     break
 
                 if (
@@ -131,8 +144,8 @@ def init_repos() -> None:
 
                 if conf.envs:
                     for env in conf.envs:
-                        if '|' in env:
-                            parts = tuple(filter(None, map(str.strip, env.split('|'))))
+                        if "|" in env:
+                            parts = tuple(filter(None, map(str.strip, env.split("|"))))
 
                             for part in parts:
                                 if os.environ.get(part):
@@ -162,8 +175,10 @@ def init_repos() -> None:
 
                 if old:
                     overridden += 1
-                    log(f"\tPlugin: [{plg.cat}/{plg.name}] "
-                        f"is overriding Repo: {safe_url(old.repo_url)}")
+                    log(
+                        f"\tPlugin: [{plg.cat}/{plg.name}] "
+                        f"is overriding Repo: {safe_url(old.repo_url)}"
+                    )
                 else:
                     unique += 1
 
@@ -174,17 +189,20 @@ def init_repos() -> None:
             log(f"\tPlugin: [{plg.cat}/{plg.name}] was ignored due to: {reason}")
 
         repos += 1
-        log(f"\t\tRepo: {safe_url(repo.info.url)} "
-            f"ignored: {ignored} overridden: {overridden} unique: {unique}")
+        log(
+            f"\t\tRepo: {safe_url(repo.info.url)} "
+            f"ignored: {ignored} overridden: {overridden} unique: {unique}"
+        )
 
     if plugins:
-
         for c_plg in Repos.get_core().get_plugins():
             if c_plg in plugins:
                 plg = plugins.pop(c_plg)
 
-                log(f"\tPlugin: [{plg.cat}/{plg.name}] was removed due to: "
-                    "matching builtin found")
+                log(
+                    f"\tPlugin: [{plg.cat}/{plg.name}] was removed due to: "
+                    "matching builtin found"
+                )
 
         def resolve_depends() -> None:
             all_ok = False
@@ -202,8 +220,10 @@ def init_repos() -> None:
                             all_ok = False
                             del plugins[plg_.name]
 
-                            log(f"\tPlugin: [{plg_.cat}/{plg_.name}] was removed due to: "
-                                f"plugin [{dep}] not found")
+                            log(
+                                f"\tPlugin: [{plg_.cat}/{plg_.name}] was removed due to: "
+                                f"plugin [{dep}] not found"
+                            )
 
                             break
 
@@ -231,8 +251,10 @@ def init_repos() -> None:
                         if packages and conflict in packages:
                             del plugins[plg.name]
 
-                            log(f"\tPlugin: [{plg.cat}/{plg.name}] was removed due to: "
-                                f"conflicting requirement [{conflict}] found")
+                            log(
+                                f"\tPlugin: [{plg.cat}/{plg.name}] was removed due to: "
+                                f"conflicting requirement [{conflict}] found"
+                            )
 
                 resolve_depends()
                 requirements = grab_requirements()
@@ -253,7 +275,7 @@ def init_repos() -> None:
 
 
 def install_req() -> None:
-    pip = os.environ.get('CUSTOM_PIP_PACKAGES')
+    pip = os.environ.get("CUSTOM_PIP_PACKAGES")
     if pip:
         Requirements.update(pip.split())
 
@@ -329,7 +351,7 @@ def _load() -> None:
 
 def load() -> None:
     log(f"Loader v{__version__}")
-    set_start_method('spawn')
+    set_start_method("spawn")
 
     with suppress(KeyboardInterrupt):
         _load()

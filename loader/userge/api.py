@@ -1,31 +1,32 @@
 __all__ = [
-    'restart',
-    'fetch_core',
-    'fetch_repo',
-    'fetch_repos',
-    'get_core',
-    'get_repo',
-    'get_repos',
-    'add_repo',
-    'remove_repo',
-    'get_core_new_commits',
-    'get_core_old_commits',
-    'get_repo_new_commits',
-    'get_repo_old_commits',
-    'edit_core',
-    'set_core_branch',
-    'set_core_version',
-    'edit_repo',
-    'set_repo_branch',
-    'set_repo_version',
-    'set_repo_priority',
-    'add_constraints',
-    'remove_constraints',
-    'get_constraints',
-    'clear_constraints',
-    'invalidate_repos_cache',
-    'set_env',
-    'unset_env']
+    "restart",
+    "fetch_core",
+    "fetch_repo",
+    "fetch_repos",
+    "get_core",
+    "get_repo",
+    "get_repos",
+    "add_repo",
+    "remove_repo",
+    "get_core_new_commits",
+    "get_core_old_commits",
+    "get_repo_new_commits",
+    "get_repo_old_commits",
+    "edit_core",
+    "set_core_branch",
+    "set_core_version",
+    "edit_repo",
+    "set_repo_branch",
+    "set_repo_version",
+    "set_repo_priority",
+    "add_constraints",
+    "remove_constraints",
+    "get_constraints",
+    "clear_constraints",
+    "invalidate_repos_cache",
+    "set_env",
+    "unset_env",
+]
 
 from typing import List, Optional, Union
 
@@ -209,8 +210,12 @@ async def set_core_version(version: Union[int, str]) -> bool:
     return await edit_core(None, version)
 
 
-async def edit_repo(repo_id: int, branch: Optional[str],
-                    version: Optional[Union[int, str]], priority: Optional[int]) -> bool:
+async def edit_repo(
+    repo_id: int,
+    branch: Optional[str],
+    version: Optional[Union[int, str]],
+    priority: Optional[int],
+) -> bool:
     """
     edit the plugins repo branch, version and priority.
     Args:
